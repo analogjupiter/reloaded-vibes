@@ -1,0 +1,34 @@
+{
+    "name": "reloaded-vibes",
+    "description": "Smart auto-reloading development webserver",
+
+    "copyright": "Copyright © 2019  0xEAB",
+    "license": "BSL-1.0",
+
+    "authors": [
+        "Elias Batek (0xEAB)"
+    ],
+
+    "stringImportPaths": ["views", "."],
+    "targetPath": "bin",
+
+    "preGenerateCommands" : [
+        "rdmd \"$PACKAGE_DIR/dubhash.d\""
+    ],
+
+    "dependencies": {
+        "vibe-d": "~>0.8.5",
+        "fswatch": "~>0.4.0"
+    },
+
+    "configurations": [
+        {
+            "name": "app",
+            "targetType": "executable"
+        },
+        {
+            "name": "library",
+            "targetType": "library"
+        }
+    ]
+}
