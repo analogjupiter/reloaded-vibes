@@ -1,0 +1,11 @@
+extends layout
+block body
+
+    script(src="#{scriptURL}")
+
+    h1 Reloaded Vibes - Test page
+    p This page should reload when
+        |
+        em Reloaded Vibes
+        |
+        | triggers.

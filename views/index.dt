@@ -1,0 +1,11 @@
+extends layout
+block body
+	h1 Reloaded Vibes
+	p Smart auto-reloading server for web development
+
+	section
+		h2 Manual mode
+		p Copy the following script into your page to manually enable
+			em Reloaded Vibes
+		input#scriptTag(type="text", value="#{scriptTag}")
+		button(onclick="(function(){document.getElementById('scriptTag').select(); document.execCommand('copy');})()") 📋
