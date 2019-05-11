@@ -29,10 +29,6 @@ bool tryParseSocket(string s, out Socket socket)
 	}
 
 	immutable possiblePortSep = s.indexOf(':');
-	if (possiblePortSep < 3)
-	{
-		return false;
-	}
 
 	size_t isIPv6 = 0;
 
