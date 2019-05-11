@@ -17,14 +17,19 @@
     ],
 
     "dependencies": {
-        "vibe-d": "~>0.8.5",
+        "vibe-d:core": "~>0.8.6-alpha.1",
+        "vibe-d:http": "~>0.8.6-alpha.1",
+        "vibe-d:tls": "~>0.8.6-alpha.1",
         "fswatch": "~>0.4.0"
     },
 
     "configurations": [
         {
             "name": "app",
-            "targetType": "executable"
+            "targetType": "executable",
+            "subConfigurations": {
+                "vibe-d:tls": "notls"
+            }
         },
         {
             "name": "library",
