@@ -13,10 +13,34 @@ import std.ascii : isDigit;
 import std.conv : to;
 import std.string : indexOf, isNumeric;
 
+@safe pure:
+
 struct Socket
 {
 	string address;
 	ushort port;
+
+	string toString() const @safe pure nothrow
+	{
+		// dfmt off
+		return (this.address.isIPv6)
+			? '[' ~ this.address ~ "]:" ~ this.port.to!string
+			: this.address ~ ':' ~ this.port.to!string;
+		// dfmt on
+	}
+}
+
+bool isIPv6(string address) nothrow @nogc
+{
+	foreach (c; address)
+	{
+		if (c == ':')
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool tryParseSocket(string s, out Socket socket)
