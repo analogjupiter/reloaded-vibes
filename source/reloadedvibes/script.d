@@ -21,8 +21,7 @@ string buildScript(Socket socketRV, bool quiet = false) nothrow
 
 string buildURLVarLine(Socket socketRV) nothrow
 {
-    return "let rvURL = 'ws://" ~ socketRV.address ~ ":"
-        ~ socketRV.port.to!string ~ "/reloaded-vibes.ws';";
+    return "let rvURL = 'ws://" ~ socketRV.toString ~ "/reloaded-vibes.ws';";
 }
 
 string buildQuietVarLine(bool quiet)()
@@ -32,7 +31,7 @@ string buildQuietVarLine(bool quiet)()
 
 string buildScriptURL(Socket socketRV) nothrow
 {
-    return "http://" ~ socketRV.address ~ ":" ~ socketRV.port.to!string ~ "/reloaded-vibes.js";
+    return "http://" ~ socketRV.toString ~ "/reloaded-vibes.js";
 }
 
 string buildScriptLoaderHTML(Socket socketRV) nothrow
