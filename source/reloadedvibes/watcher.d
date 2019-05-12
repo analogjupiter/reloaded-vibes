@@ -16,7 +16,7 @@ final class Watcher
     private
     {
         FileWatch*[] _fws = [];
-        WatcherClient[] _cs;
+        WatcherClient[] _cs = [];
     }
 
     public this(string[] directories)
@@ -122,27 +122,5 @@ class WatcherClient
         {
             this._notified = true;
         }
-    }
-}
-
-final class ActionWatcherClient : WatcherClient
-{
-    private
-    {
-        string _action;
-    }
-
-    public this(Watcher w, string action) @safe pure nothrow
-    {
-        super(w);
-        this._action = action;
-    }
-
-    public override void notify() @safe
-    {
-        import std.process : spawnShell, wait;
-
-        spawnShell(this._action).wait();
-        this.setNotified();
     }
 }
