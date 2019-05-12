@@ -52,7 +52,7 @@ function rvMsg(text, timeout = -1) {
 
 function attemptReconnect(currentConnectionAttempt, timeout) {
     window.setTimeout(function () {
-        rvMsg('Attempting reconnect…');
+        rvMsg('Attempting to reconnect…');
         window.setTimeout(function () {
             rvConnect(++currentConnectionAttempt);
         }, 1000);
