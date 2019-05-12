@@ -8,11 +8,30 @@
  +/
 module reloadedvibes.server;
 
-import vibe.d;
+import std.datetime : dur;
+import std.stdio : File;
+import std.string : endsWith;
+
+import vibe.core.core;
+import vibe.core.path;
+import vibe.core.sync;
+import vibe.http.fileserver;
+import vibe.http.router;
+import vibe.http.server;
+import vibe.http.websockets;
+
 import reloadedvibes.script;
 import reloadedvibes.utils;
+import reloadedvibes.watcher;
 
-HTTPListener registerService(Socket s)
+static TaskMutex tm;
+
+static this()
+{
+    tm = new TaskMutex();
+}
+
+HTTPListener registerService(Socket s, Watcher w)
 {
     void index(scope HTTPServerRequest, scope HTTPServerResponse res) @safe
     {
@@ -23,7 +42,7 @@ HTTPListener registerService(Socket s)
     void script(scope HTTPServerRequest req, scope HTTPServerResponse res)
     {
         immutable disableMsg = (("quiet" in req.query()) !is null);
-        res.writeBody(s.buildScript(disableMsg), 200, "application/javascript");
+        res.writeBody(s.buildScript(disableMsg), 200, "application/javascript; charset=utf-8");
     }
 
     void test(scope HTTPServerRequest, scope HTTPServerResponse res)
@@ -32,23 +51,35 @@ HTTPListener registerService(Socket s)
         render!("test.dt", scriptURL)(res);
     }
 
-    void webSocket(scope WebSocket sock)
+    void webSocket(scope WebSocket ws)
     {
-        if (sock.connected)
+        if (ws.connected)
         {
-            auto msg = sock.receiveText();
+            auto msg = ws.receiveText();
             if (msg != "ReloadedVibes::Init;")
             {
-                sock.close(WebSocketCloseReason.unsupportedData);
+                ws.close(WebSocketCloseReason.unsupportedData);
                 return;
             }
-            sock.send(msg);
+            ws.send(msg);
         }
-        while (sock.connected)
+
+        WatcherClient wcl = new WatcherClient(w);
+
+        do
         {
-            auto msg = sock.receiveText();
-            sock.send(msg);
+            synchronized (tm)
+            {
+                if (wcl.query())
+                {
+                    ws.send("ReloadedVibes::Trigger;");
+                }
+            }
+            sleep(dur!"msecs"(500));
         }
+        while (ws.connected);
+
+        wcl.unregister();
     }
 
     auto router = new URLRouter();
@@ -61,4 +92,16 @@ HTTPListener registerService(Socket s)
     settings.port = s.port;
     settings.bindAddresses = [s.address];
     return listenHTTP(settings, router);
+}
+
+void run(HTTPListeners)(HTTPListeners listeners)
+{
+    scope (exit)
+    {
+        foreach (HTTPListener h; listeners)
+        {
+            h.stopListening();
+        }
+    }
+    runEventLoop();
 }
