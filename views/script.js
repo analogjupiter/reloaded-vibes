@@ -80,6 +80,11 @@ function rvConnect(connectionAttempt = 0) {
             rvMsg('Reconnect failed');
             return;
         }
+        if (!rvInitialized)
+        {
+            rvMsg('Failed to establish connection');
+            return;
+        }
         rvMsg('WebSocket Error\nSee console for details.')
         console.log(error);
     };
