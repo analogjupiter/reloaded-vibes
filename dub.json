@@ -1,6 +1,6 @@
 {
     "name": "reloaded-vibes",
-    "description": "Smart auto-reloading development webserver",
+    "description": "🔄 Smart auto-reloading service and server for web development",
 
     "copyright": "Copyright © 2019  0xEAB",
     "license": "BSL-1.0",
@@ -25,7 +25,7 @@
 
     "configurations": [
         {
-            "name": "app",
+            "name": "application",
             "targetType": "executable",
             "subConfigurations": {
                 "vibe-d:tls": "notls"
@@ -33,7 +33,8 @@
         },
         {
             "name": "library",
-            "targetType": "library"
+            "targetType": "library",
+            "excludedSourceFiles": ["source/reloadedvibes/app.d"]
         }
     ]
 }
