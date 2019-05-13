@@ -8,6 +8,7 @@
  +/
 module reloadedvibes.server;
 
+import std.file : exists;
 import std.datetime : dur;
 import std.stdio : File;
 import std.string : endsWith;
@@ -92,6 +93,113 @@ HTTPListener registerService(Socket s, Watcher w)
     settings.port = s.port;
     settings.bindAddresses = [s.address];
     return listenHTTP(settings, router);
+}
+
+HTTPListener registerStaticWebserver(Socket s, string docroot)
+{
+    auto settings = new HTTPServerSettings();
+    settings.port = s.port;
+    settings.bindAddresses = [s.address];
+    return listenHTTP(settings, serveStaticFiles(docroot));
+}
+
+HTTPListener registerStaticWebserver(Socket s, string docroot, Socket nfService)
+{
+    immutable htd = NativePath(docroot);
+
+    void injectingServer(scope HTTPServerRequest req, scope HTTPServerResponse res) @trusted
+    {
+        auto p = req.requestPath;
+        string pString = p.toString;
+
+        if (pString.endsWith("/"))
+        {
+            p = InetPath(pString[1 .. $] ~ "index.html");
+        }
+        else
+        {
+            p = InetPath(pString[1 .. $]);
+        }
+
+        try
+        {
+            p.normalize();
+        }
+        catch (Exception)
+        {
+            res.statusCode = 400;
+        }
+
+        if (p.absolute)
+        {
+            res.statusCode = 500;
+            return;
+        }
+
+        if (!p.empty && p.bySegment.front.name == "..")
+        {
+            res.statusCode = 400;
+            return;
+        }
+
+        NativePath file = (htd ~ p);
+        immutable fileS = file.toString;
+        if (fileS.exists && fileS.endsWith(".html"))
+        {
+            res.headers["Content-Type"] = "text/html";
+            auto b = res.bodyWriter;
+
+            auto f = File(file.toString, "r");
+            ubyte[1] buffer;
+
+            Outer: while (!f.eof)
+            {
+                if (f.rawRead(buffer).length == 0)
+                {
+                    break;
+                }
+                if (buffer[0] != '<')
+                {
+                    b.write(buffer);
+                    continue;
+                }
+
+                static immutable chars = "/body>";
+                ubyte[6] buffer2;
+
+                static foreach (i, c; chars)
+                {
+                    if (f.rawRead(buffer2[i .. (i + 1)]).length == 0)
+                    {
+                        b.write(buffer);
+                        b.write(buffer2[0 .. i]);
+                        break Outer;
+                    }
+                    if (buffer2[i] != c)
+                    {
+                        b.write(buffer);
+                        b.write(buffer2[0 .. (i + 1)]);
+                        continue Outer;
+                    }
+                }
+
+                // inject
+                b.write(cast(ubyte[])(nfService.buildScriptLoaderHTML()));
+                b.write(buffer);
+                b.write(buffer2);
+            }
+
+            return;
+        }
+
+        sendFile(req, res, file);
+    }
+
+    auto settings = new HTTPServerSettings();
+    settings.port = s.port;
+    settings.bindAddresses = [s.address];
+
+    return listenHTTP(settings, &injectingServer);
 }
 
 void run(HTTPListeners)(HTTPListeners listeners)
