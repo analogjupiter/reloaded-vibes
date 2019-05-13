@@ -143,5 +143,6 @@ You can find the built executable inside the `bin/` directory
 
 ## Packaging
 
-Please note that while *Reloaded Vibes* is available under the *Boost Software License 1.0*,
-its dependency *vibe.d* is licensed under the terms of the MIT public license.
+Please note that while the source code of *Reloaded Vibes* itself is available under the *Boost Software License 1.0*,
+its dependency *vibe.d* is licensed under the terms of the MIT public license that also affects the final binary.
+Ask your laywer for an explanation or details.
