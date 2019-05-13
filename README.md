@@ -120,7 +120,7 @@ Alternative: see the **automatic script-injection** of the built-in webserver.
 ```
 git clone https://github.com/voidblaster/reloaded-vibes.git
 cd reloaded-vibes
-dub build
+dub build --build=release
 ```
 
 You can find the built executable inside the `bin/` directory

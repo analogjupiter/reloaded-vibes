@@ -8,9 +8,11 @@
  +/
 module reloadedvibes.app;
 
+import std.algorithm : each;
 import std.datetime : dur;
 import std.file : exists, isDir;
 import std.getopt;
+import std.path : absolutePath;
 import std.stdio : stdout, stderr;
 
 import vibe.core.core : runTask, sleep;
@@ -165,6 +167,31 @@ int main(string[] args)
             listeners ~= registerStaticWebserver(webserver, optDocumentRootWebServer, service);
         }
     }
+
+    // -- Print info
+
+    stdout.writeln(appName, "\n");
+
+    optWatchDirectories.each!(dir => stdout.writeln("Watching:                ", dir));
+
+    if (!optDisableService)
+    {
+        stdout.writeln();
+        stdout.writeln("Notification service:    ", service.toString);
+    }
+
+    if (optSocketWebServer !is null)
+    {
+        stdout.writeln();
+        stdout.writeln("Built-in webserver:      ", webserver.toString);
+        stdout.writeln("Serving:                 ", optDocumentRootWebServer.absolutePath);
+        stdout.writeln("Script injection:        ", ((optNoInjectWebServer) ? "disabled" : "enabled"));
+    }
+
+    stdout.writeln();
+    optActions.each!(act => stdout.writeln("Action:                  ", act));
+
+    stdout.writeln();
 
     // -- Run
     run(listeners);
