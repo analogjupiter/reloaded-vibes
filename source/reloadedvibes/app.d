@@ -177,14 +177,14 @@ int main(string[] args)
     if (!optDisableService)
     {
         stdout.writeln();
-        stdout.writeln("Notification service:    ", service.toString);
+        stdout.writeln("Notification service:    http://", service.toString);
     }
 
     if (optSocketWebServer !is null)
     {
         // dfmt off
         stdout.writeln();
-        stdout.writeln("Built-in webserver:      ", webserver.toString);
+        stdout.writeln("Built-in webserver:      http://", webserver.toString);
         stdout.writeln("Serving:                 ", optDocumentRootWebServer.absolutePath);
         stdout.writeln("Script injection:        ", ((optNoInjectWebServer) ? "disabled" : "enabled"));
         // dfmt on
