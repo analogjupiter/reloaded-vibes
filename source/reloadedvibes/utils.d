@@ -70,9 +70,14 @@ bool tryParseSocket(string s, out Socket socket)
 
 		isIPv6 = s.indexOf(':', ipv6end);
 	}
+	else if (possiblePortSep > -1)
+	{
+		// IPv4
+		socket.address = s[0 .. possiblePortSep];
+	}
 	else
 	{
-		socket.address = s[0 .. possiblePortSep];
+		return false;
 	}
 
 	immutable portSep = (isIPv6) ? isIPv6 : possiblePortSep;
