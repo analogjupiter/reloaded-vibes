@@ -182,10 +182,12 @@ int main(string[] args)
 
     if (optSocketWebServer !is null)
     {
+        // dfmt off
         stdout.writeln();
         stdout.writeln("Built-in webserver:      ", webserver.toString);
         stdout.writeln("Serving:                 ", optDocumentRootWebServer.absolutePath);
         stdout.writeln("Script injection:        ", ((optNoInjectWebServer) ? "disabled" : "enabled"));
+        // dfmt on
     }
 
     stdout.writeln();
@@ -200,11 +202,32 @@ int main(string[] args)
 
 void printHelp(string args0, GetoptResult opt)
 {
-    defaultGetoptPrinter(appName ~ "\n\n  Usage:\n    " ~ args0
-            ~ " <options>\n\n  Example:\n    " ~ args0 ~ " --socket=127.0.0.1:3001"
-            ~ "\n                         --watch=./src            --watch=./sass"
-            ~ "\n                         --action=\"npm run build\" --action=\"./refreshDB.sh\""
-            ~ "\n\nAvailable options:\n==================", opt.options);
+    // Ideally, this help text will not exceed a size of
+    // 80x23, so that it's fully visible on an 80x24 terminal.
+
+    size_t getIndent()
+    {
+        immutable l = args0.length + 5;
+        return (l <= 29) ? l : 8;
+    }
+
+    string makeIndent()
+    {
+        enum indent = "                             ";
+        return indent[0 .. getIndent()];
+    }
+
+    immutable indent = makeIndent();
+
+    // dfmt off
+    defaultGetoptPrinter(
+        appName ~ "\n\n  Usage:\n    " ~ args0 ~ " <options>\n\n  Example:\n    "
+            ~ args0 ~ " --socket=127.0.0.1:3001\n"
+            ~ indent ~ "--watch=./src            --watch=./sass\n"
+            ~ indent ~ "--action=\"npm run build\" --action=\"./refreshDB.sh\""
+            ~ "\n\nAvailable options:\n==================",
+        opt.options
+    );
 }
 
 void printVersionInfo()
