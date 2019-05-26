@@ -9,6 +9,7 @@
 module reloadedvibes.watcher;
 
 import std.algorithm : remove;
+import std.range : isInputRange;
 import fswatch;
 
 final class Watcher
@@ -19,7 +20,7 @@ final class Watcher
         WatcherClient[] _cs = [];
     }
 
-    public this(string[] directories)
+    public this(Range)(Range directories) if (isInputRange!Range)
     {
         foreach (dir; directories)
         {

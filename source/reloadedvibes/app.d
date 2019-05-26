@@ -8,11 +8,11 @@
  +/
 module reloadedvibes.app;
 
-import std.algorithm : each;
+import std.algorithm : each, map;
 import std.datetime : dur;
 import std.file : exists, isDir;
 import std.getopt;
-import std.path : absolutePath;
+import std.path : absolutePath, buildNormalizedPath;
 import std.stdio : stdout, stderr;
 
 import vibe.core.core : runTask, sleep;
@@ -91,6 +91,7 @@ int main(string[] args)
     Watcher watcher;
     Socket webserver;
     HTTPListener[] listeners;
+    void delegate()[] doInit;
 
     // -- Watcher
     if (optWatchDirectories.length == 0)
@@ -98,7 +99,10 @@ int main(string[] args)
         stderr.writeln("No directory to watch specified, use --watch to pass one");
         return 1;
     }
-    watcher = new Watcher(optWatchDirectories);
+
+    auto watchDirectories = optWatchDirectories.map!(x => x.absolutePath.buildNormalizedPath());
+
+    watcher = new Watcher(watchDirectories);
 
     // -- Service
     if (!optDisableService)
@@ -109,7 +113,7 @@ int main(string[] args)
             return 1;
         }
 
-        listeners ~= registerService(service, watcher);
+        doInit ~= { listeners ~= registerService(service, watcher); };
     }
     else
     {
@@ -123,17 +127,19 @@ int main(string[] args)
         // Initial execution
         // Since the action is usually some preprocessor or something,
         // it should also get executed on application launch
-        awcl.notify();
+        doInit ~= { awcl.notify(); };
 
         if (optDisableService)
         {
-            runTask(delegate() @trusted {
-                while (true)
-                {
-                    awcl.query();
-                    sleep(dur!"msecs"(500));
-                }
-            });
+            doInit ~= {
+                runTask(delegate() @trusted {
+                    while (true)
+                    {
+                        awcl.query();
+                        sleep(dur!"msecs"(500));
+                    }
+                });
+            };
         }
     }
 
@@ -158,13 +164,19 @@ int main(string[] args)
             return 1;
         }
 
+        optDocumentRootWebServer = optDocumentRootWebServer.absolutePath.buildNormalizedPath();
+
         if (optNoInjectWebServer)
         {
-            listeners ~= registerStaticWebserver(webserver, optDocumentRootWebServer);
+            doInit ~= {
+                listeners ~= registerStaticWebserver(webserver, optDocumentRootWebServer);
+            };
         }
         else
         {
-            listeners ~= registerStaticWebserver(webserver, optDocumentRootWebServer, service);
+            doInit ~= {
+                listeners ~= registerStaticWebserver(webserver, optDocumentRootWebServer, service);
+            };
         }
     }
 
@@ -172,7 +184,7 @@ int main(string[] args)
 
     stdout.writeln(appName, "\n");
 
-    optWatchDirectories.each!(dir => stdout.writeln("Watching:                ", dir));
+    watchDirectories.each!(dir => stdout.writeln("Watching:                ", dir));
 
     if (!optDisableService)
     {
@@ -185,7 +197,7 @@ int main(string[] args)
         // dfmt off
         stdout.writeln();
         stdout.writeln("Built-in webserver:      http://", webserver.toString);
-        stdout.writeln("Serving:                 ", optDocumentRootWebServer.absolutePath);
+        stdout.writeln("Serving:                 ", optDocumentRootWebServer);
         stdout.writeln("Script injection:        ", ((optNoInjectWebServer) ? "disabled" : "enabled"));
         // dfmt on
     }
@@ -196,6 +208,7 @@ int main(string[] args)
     stdout.writeln();
 
     // -- Run
+    doInit.each!(x => x());
     run(listeners);
     return 0;
 }
