@@ -95,7 +95,7 @@ HTTPListener registerService(Socket s, Watcher w)
     return listenHTTP(settings, router);
 }
 
-HTTPListener registerStaticWebserver(Socket s, string docroot)
+HTTPListener registerStaticWebserver(Socket s, string docroot) @safe
 {
     auto settings = new HTTPServerSettings();
     settings.port = s.port;
@@ -103,7 +103,7 @@ HTTPListener registerStaticWebserver(Socket s, string docroot)
     return listenHTTP(settings, serveStaticFiles(docroot));
 }
 
-HTTPListener registerStaticWebserver(Socket s, string docroot, Socket nfService)
+HTTPListener registerStaticWebserver(Socket s, string docroot, Socket nfService) @safe
 {
     immutable htd = NativePath(docroot);
 

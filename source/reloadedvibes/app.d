@@ -127,7 +127,7 @@ int main(string[] args)
         // Initial execution
         // Since the action is usually some preprocessor or something,
         // it should also get executed on application launch
-        doInit ~= { awcl.notify(); };
+        doInit ~= { stdout.writeln("\nPre-executing actions..."); awcl.notify(); };
 
         if (optDisableService)
         {

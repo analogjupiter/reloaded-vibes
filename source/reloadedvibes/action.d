@@ -8,7 +8,7 @@
  +/
 module reloadedvibes.action;
 
-import std.stdio : stderr;
+import std.stdio : stderr, stdout;
 import std.process : spawnShell, wait;
 import reloadedvibes.watcher;
 
@@ -36,21 +36,47 @@ final class ActionWatcherClient : WatcherClient
 
 ActionWatcherClient fromCommandLines(Watcher w, string[] commandLines)
 {
+    enum sepLine = "-------------------------------------------------------------------------------";
+    enum segmentPre = "----{ ";
+    enum segmentPost = " }";
+    enum segmentsLength = (segmentPre.length + segmentPost.length);
+    enum embeddedCMDMaxLength = 79 - segmentsLength;
+
+    string[] sep = new string[commandLines.length];
+
+    foreach (idx, cmd; commandLines)
+    {
+        if (cmd.length >= embeddedCMDMaxLength)
+        {
+            sep[idx] = sepLine ~ "\n" ~ cmd ~ "\n" ~ sepLine ~ "\n";
+            continue;
+        }
+
+        immutable rest = embeddedCMDMaxLength - cmd.length;
+        sep[idx] = segmentPre ~ cmd ~ segmentPost ~ sepLine[0 .. rest] ~ "\n";
+    }
+
     return new ActionWatcherClient(w, delegate() @trusted {
-        foreach (cmd; commandLines)
+        foreach (idx, cmd; commandLines)
         {
             try
             {
+                stdout.writeln("\n", sep[idx]);
                 immutable exitCode = spawnShell(cmd).wait();
 
                 if (exitCode != 0)
                 {
-                    stderr.writeln("Action {" ~ cmd ~ "} failed with exit code ", exitCode);
+                    stderr.writeln("\n", sepLine,
+                        "\nAction {" ~ cmd ~ "} failed with exit code ", exitCode);
                 }
             }
             catch (Exception ex)
             {
-                stderr.writeln("Action {" ~ cmd ~ "} failed: ", ex.msg);
+                stderr.writeln("\n", sepLine, "\nAction {" ~ cmd ~ "} failed: ", ex.msg);
+            }
+            finally
+            {
+                stdout.writeln("\n");
             }
         }
     });
