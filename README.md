@@ -32,7 +32,7 @@ so you don't have to take care of it manually.
 ### Command line
 
 ```
-./reloaded-vibes --watch=<DIRECTORY TO WATCH> --action=<COMMANDLINE>
+./rlv --watch=<DIRECTORY TO WATCH> --action=<COMMANDLINE>
 ```
 
 | Option | Example values | Explanation |
@@ -44,7 +44,7 @@ so you don't have to take care of it manually.
 #### Multiple directories or actions
 
 ```
-./reloaded-vibes --watch=<DIR_1> --watch=<DIR_2> --action=<CMD_1> --action=<CMD_2>
+./rlv --watch=<DIR_1> --watch=<DIR_2> --action=<CMD_1> --action=<CMD_2>
 ```
 
 Just specify the respective arguments multiple times.
@@ -53,7 +53,7 @@ Just specify the respective arguments multiple times.
 #### Custom socket for the notification service
 
 ```
-./reloaded-vibes --watch=<DIRECTORY TO WATCH> --socket=<SOCKET>
+./rlv --watch=<DIRECTORY TO WATCH> --socket=<SOCKET>
 ```
 
 | Option | Example values | Explanation |
@@ -64,7 +64,7 @@ Just specify the respective arguments multiple times.
 #### Built-in webserver
 
 ```
-./reloaded-vibes --watch=<DIRECTORY TO WATCH> --webserver=<SOCKET> --htdocs=<DOCUMENT ROOT>
+./rlv --watch=<DIRECTORY TO WATCH> --webserver=<SOCKET> --htdocs=<DOCUMENT ROOT>
 ```
 
 | Option | Example values | Explanation |
@@ -85,7 +85,7 @@ This feature is enabled by default for the built-in webserver. Pass `--noinject`
 #### No service ("offline") mode
 
 ```
-./reloaded-vibes --watch=<DIRECTORY TO WATCH> --action=<COMMANDLINE> --noservice
+./rlv --watch=<DIRECTORY TO WATCH> --action=<COMMANDLINE> --noservice
 ```
 
 | Option | Example values | Explanation |

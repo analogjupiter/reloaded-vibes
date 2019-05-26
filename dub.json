@@ -26,6 +26,7 @@
     "configurations": [
         {
             "name": "application",
+            "targetName": "rlv",
             "targetType": "executable",
             "subConfigurations": {
                 "vibe-d:tls": "notls"
