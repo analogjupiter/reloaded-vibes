@@ -40,6 +40,8 @@ so you don't have to take care of it manually.
 | `--watch=<DIR>` | `source`, `../` | Directories to watch changes. |
 | `--action=<CMD>` | `"npm run build"`,<br/>`./myScript.sh`| Command lines to execute before triggering a refresh. |
 
+Visit `http://<SOCKET NOTIFICATION SERVICE>/test` to try it out on the test page.
+
 
 #### Multiple directories or actions
 
@@ -83,6 +85,8 @@ This feature is enabled by default for the built-in webserver. Pass `--noinject`
 
 
 #### No service ("offline") mode
+
+Use *Reloaded Vibes* to execute commands on changes - with networking disabled.
 
 ```
 ./rlv --watch=<DIRECTORY TO WATCH> --action=<COMMANDLINE> --noservice
