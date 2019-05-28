@@ -127,20 +127,18 @@ int main(string[] args)
         // Initial execution
         // Since the action is usually some preprocessor or something,
         // it should also get executed on application launch
-        doInit ~= { stdout.writeln("\nPre-executing actions..."); awcl.notify(); };
+        doInit ~= {
+            stdout.writeln("\nPre-executing actions...");
+            awcl.notify();
 
-        if (optDisableService)
-        {
-            doInit ~= {
-                runTask(delegate() @trusted {
-                    while (true)
-                    {
-                        awcl.query();
-                        sleep(dur!"msecs"(500));
-                    }
-                });
-            };
-        }
+            runTask(delegate() @trusted {
+                while (true)
+                {
+                    awcl.query();
+                    sleep(dur!"msecs"(200));
+                }
+            });
+        };
     }
 
     // -- Webserver

@@ -76,7 +76,7 @@ HTTPListener registerService(Socket s, Watcher w)
                     ws.send("ReloadedVibes::Trigger;");
                 }
             }
-            sleep(dur!"msecs"(500));
+            sleep(dur!"msecs"(200));
         }
         while (ws.connected);
 
