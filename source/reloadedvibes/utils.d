@@ -8,7 +8,7 @@
  +/
 module reloadedvibes.utils;
 
-import std.algorithm : canFind;
+import std.algorithm : canFind, count;
 import std.ascii : isDigit;
 import std.conv : to;
 import std.string : indexOf, isNumeric;
@@ -54,6 +54,12 @@ bool isIPv6(string address) nothrow @nogc
 	}
 
 	return false;
+}
+
+unittest
+{
+	assert("127.0.0.1".isIPv6 == false);
+	assert("::1".isIPv6);
 }
 
 /++
@@ -130,4 +136,41 @@ bool tryParseSocket(string s, out Socket socket)
 
 	socket.port = cast(ushort)(portInt);
 	return true;
+}
+
+unittest
+{
+	import std.conv : to;
+	import std.typecons : tuple;
+
+	auto sockets = [
+		// dfmt off
+		tuple("127.0.0.1:3001", true, Socket("127.0.0.1", 3001)),
+		tuple("1.2.3.4:56", true, Socket("1.2.3.4", 56)),
+		tuple("127.0.0.1:123456", false, Socket()),
+		tuple("[::1]:80", true, Socket("::1", 80)),
+		tuple("[1]]:3001", false, Socket()),
+		tuple("10.0.0.1", false, Socket()),
+		tuple("[2001:db8:1234:0000:0000:0000:0000:0000]:443", true, Socket("2001:db8:1234:0000:0000:0000:0000:0000", 443)),
+		tuple("[2001:db8::1]", false, Socket()),
+		tuple(":1", false, Socket()),
+		tuple("::11", false, Socket()),
+		tuple("12.1:10", false, Socket()),
+		tuple("1.2.3.4:-56", false, Socket()),
+		// dfmt on
+	];
+
+	foreach (idx, s; sockets)
+	{
+		Socket x;
+
+		immutable r = tryParseSocket(s[0], x);
+
+		assert(r == s[1], "Unexpected parser result: [" ~ idx.to!string ~ "] " ~ s[0] ~ " -> " ~ r.to!string);
+
+		if (r)
+		{
+			assert(x == s[2], "Wrongly parsed: [" ~ idx.to!string ~ "] " ~ s[0]);
+		}
+	}
 }

@@ -33,6 +33,14 @@
             }
         },
         {
+            "name": "unittest",
+            "targetName": "rlv-unittest",
+            "excludedSourceFiles": ["source/reloadedvibes/app.d"],
+            "subConfigurations": {
+                "vibe-d:tls": "notls"
+            }
+        },
+        {
             "name": "library",
             "targetType": "library",
             "excludedSourceFiles": ["source/reloadedvibes/app.d"]
