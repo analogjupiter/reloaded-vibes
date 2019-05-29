@@ -30,6 +30,19 @@ struct Socket
 	}
 }
 
+/++
+	Determines whether the passed string is an IPv6 address (and not an IPv4 one).
+	Use this function to differentiate between IPv4 and IPv6 addresses.
+
+	Limitation:
+		This functions does only very basic and cheap testing.
+		It does not validate the IPv6 address at all.
+		Never pass any sockets to it - IPv4 ones will get detected as IPv6 addresses.
+		Do not use it for anything else than differentiating IPv4/IPv6 addresses.
+
+	Returns:
+		true if the passed string could looks like an IPv6 address
+ +/
 bool isIPv6(string address) nothrow @nogc
 {
 	foreach (c; address)
@@ -43,11 +56,21 @@ bool isIPv6(string address) nothrow @nogc
 	return false;
 }
 
+/++
+	Tries to parse a socket string
+
+	Supports both IPv4 and IPv6.
+	Does limited validating.
+
+	Returns:
+		true if parsing was successfull,
+		false indicates bad/invalid input
+ +/
 bool tryParseSocket(string s, out Socket socket)
 {
 	socket = Socket();
 
-	if ((s is null) && (s.length == 0))
+	if ((s is null) && (s.length == 0)) // validate
 	{
 		return false;
 	}
@@ -74,6 +97,11 @@ bool tryParseSocket(string s, out Socket socket)
 	{
 		// IPv4
 		socket.address = s[0 .. possiblePortSep];
+
+		if (socket.address.count!(c => c == '.') != 3) // validate
+		{
+			return false;
+		}
 	}
 	else
 	{
@@ -81,15 +109,21 @@ bool tryParseSocket(string s, out Socket socket)
 	}
 
 	immutable portSep = (isIPv6) ? isIPv6 : possiblePortSep;
+
+	if (portSep == 0) // validate
+	{
+		return false;
+	}
+
 	string port = s[(portSep + 1) .. $];
 
-	if (port.canFind!(d => !d.isDigit)() || (port.length > 5) || (port[0] == '-'))
+	if (port.canFind!(d => !d.isDigit)() || (port.length > 5) || (port[0] == '-')) // validate
 	{
 		return false;
 	}
 
 	immutable portInt = port.to!int;
-	if (portInt > ushort.max)
+	if (portInt > ushort.max) // validate
 	{
 		return false;
 	}
